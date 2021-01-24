@@ -12,16 +12,18 @@ from scipy.interpolate import lagrange
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 from scipy.optimize import fmin 
+import pandas as pd    
+
 
 """
 TODO : 
     - Check that n is not n-1 by mistake
     - Beware of indices
-    - To go faster, maybe you don't need to calculate the arctan, because the angles are small
-    - Index of refraction: see that it is correct in matlabfor Omega
+    - To go faster, maybe there is no need to calculate the arctan (small angles)
+    - Index of refraction: see that it is correct in matlab for Omega
     - Modify the critical angle to be always good for r_k<= 4 um, so that only L_k = L_lower counts
     - Make sure initial simplex is big enough (make problem adimentional?)
-    - Check if there is a mistake that gives a factor of 2 on the taper angle (or critical angle)
+    - Check whether there is a mistake that gives a factor of 2 on the taper angle (or critical angle)
 """
 
 
@@ -265,16 +267,20 @@ class nf:
         if not isadiab:
             if printout:
                 print("Is not adiabatic")
-            return 10**8*np.abs(angle)
-        print(L)
+            return 10**8*np.abs(angle)  # TODO: maybe put the difference between the angle and the critical angle instead
+        print(L) 
         self.optimized_Lk = L
         ltot = self.Ltotal(K, L, lag)
         self.optimized_nf_length = ltot
         return ltot
     
     def mimimize(self):
-        F = 0.40 
-        Lk0 = [6000,8500,8000,7500,3500,1500,1300,1100,1000]
+        F = 0.20 
+        data = np.array(pd.read_excel("Lk.xlsx"))
+        K0 = np.array([1,21,41,61,81,101,121,141,161])
+        Lk0 = list(np.transpose(data[K0-1])[1])
+        # Lk0 = [6000,8500,8000,7500,3500,1500,1300,1100,1000]
+        Lk0 = [6320, 9830, 10065, 6452, 2919, 1280, 834, 487, 350]
         self.optimized_Lk = Lk0 
         #Lk0 = [6000,6500,6700,7500,3500,1500,1300,1100,1000]
         K0 = np.array([1,21,41,61,81,101,121,141,161])
@@ -288,7 +294,7 @@ class nf:
         fmin(self.function_to_minimize, Lk0, args=(K0,F,),
             xtol=0.0001, ftol=1, maxiter=None, maxfun=None, full_output=0, 
             disp=1, retall=0, callback=None, initial_simplex=None)
-        plt.plot(x,self.lagrange_Lmin(K0,self.optimized_Lk))
+        plt.plot(x,self.lagrange_Lmin(K0,self.optimized_Lk), label='%.2f mm'%(self.optimized_nf_length/1000))
         ls.append(self.optimized_nf_length)
         
         for i in range(10):
@@ -296,9 +302,11 @@ class nf:
             fmin(self.function_to_minimize, self.optimized_Lk, args=(K0,F,),
                  xtol=0.0001, ftol=1, maxiter=None, maxfun=None, full_output=0, 
                  disp=1, retall=0, callback=None, initial_simplex=None)
-            plt.plot(x,self.lagrange_Lmin(K0,self.optimized_Lk))
+            plt.plot(x,self.lagrange_Lmin(K0,self.optimized_Lk), label='%.2f mm'%(self.optimized_nf_length/1000))
             ls.append(self.optimized_nf_length)
         print(ls)
+        plt.legend()
+        plt.xlim([-1, 140])
         return self.optimized_Lk
     
     
@@ -306,6 +314,9 @@ def main ():
     nano = nf(0.3)
     
     a = nano.mimimize()
+    
+    
+    
     
     # a = nano.critical_angle(20)
     
