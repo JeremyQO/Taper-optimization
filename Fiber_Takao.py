@@ -21,6 +21,7 @@ TODO :
     - Index of refraction: see that it is correct in matlabfor Omega
     - Modify the critical angle to be always good for r_k<= 4 um, so that only L_k = L_lower counts
     - Make sure initial simplex is big enough (make problem adimentional?)
+    - Check if there is a mistake that gives a factor of 2 on the taper angle (or critical angle)
 """
 
 
@@ -32,7 +33,6 @@ class nf:
         ----------
         target_r : float
             Target radius in um
-
         
         self.n : contains the total number of iterations required to attain the 
             target radius
@@ -273,7 +273,7 @@ class nf:
         return ltot
     
     def mimimize(self):
-        F = 0.80 
+        F = 0.40 
         Lk0 = [6000,8500,8000,7500,3500,1500,1300,1100,1000]
         self.optimized_Lk = Lk0 
         #Lk0 = [6000,6500,6700,7500,3500,1500,1300,1100,1000]
