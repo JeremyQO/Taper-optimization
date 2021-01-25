@@ -19,7 +19,7 @@ import pandas as pd
 TODO : 
     - Check that n is not n-1 by mistake
     - Beware of indices
-    - To go faster, maybe there is no need to calculate the arctan (small angles)
+    - To go faster, maybe there is no need to calculate the arctan (small angles approximation)
     - Index of refraction: see that it is correct in matlab for Omega
     - Modify the critical angle to be always good for r_k<= 4 um, so that only L_k = L_lower counts
     - Make sure initial simplex is big enough (make problem adimentional?)
@@ -275,7 +275,7 @@ class nf:
         return ltot
     
     def mimimize(self):
-        F = 0.20 
+        F = 0.80 
         data = np.array(pd.read_excel("Lk.xlsx"))
         K0 = np.array([1,21,41,61,81,101,121,141,161])
         Lk0 = list(np.transpose(data[K0-1])[1])
